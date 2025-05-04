@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "818665754535",
+    "firebase_url": "https://arduino-f576c-default-rtdb.firebaseio.com",
+    "project_id": "arduino-f576c",
+    "storage_bucket": "arduino-f576c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818665754535:android:cb9027403965dc6a76f082",
+        "android_client_info": {
+          "package_name": "com.example.gatekeep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-m8-PjaX2HLwqd5z8mhYx0vS_EbnQiQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
