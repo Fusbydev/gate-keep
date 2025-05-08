@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,8 +22,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,11 +49,15 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);  // Initialize Firebase
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("user");
 
+        trackerTable = findViewById(R.id.trackerTable);
+        fetchLogsFromFirebase();
+
         // Initialize NFC
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
-            Toast.makeText(this, "NFC not supported", Toast.LENGTH_SHORT).show();
-            finish();
+//            Toast.makeText(this, "NFC not supported", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "NFC not supported (Running in non-NFC mode)", Toast.LENGTH_SHORT).show();
+//            finish();
             return;
         }
 
@@ -95,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 String uid = bytesToHex(tag.getId());
 
                 if (!pendingName.isEmpty()) {
-                    addRowToTable(pendingName, uid);
-
                     // Push to Firebase
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("user");
                     String key = databaseReference.push().getKey();  // Generate a unique key
@@ -123,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    private void addRowToTable(String name, String uid) {
+    private void addRowToTable(String name, String uid, String timestamp) {
         TableRow row = new TableRow(this);
 
         TextView nameText = new TextView(this);
@@ -134,8 +140,47 @@ public class MainActivity extends AppCompatActivity {
         uidText.setText(uid);
         uidText.setPadding(8, 8, 8, 8);
 
+        TextView timeText = new TextView(this);
+        timeText.setText(timestamp);
+        timeText.setPadding(8, 8, 8, 8);
+
         row.addView(nameText);
         row.addView(uidText);
-        trackerTable.addView(row);
+        row.addView(timeText);
+
+        trackerTable.addView(row, 0);  // Newest on top
     }
+
+
+    private void fetchLogsFromFirebase() {
+        DatabaseReference logsRef = FirebaseDatabase.getInstance().getReference("logs");
+
+        logsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                TableLayout trackerTable = findViewById(R.id.trackerTable);
+
+                // Clear existing rows in the data table
+                int childCount = trackerTable.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    trackerTable.removeViewAt(0); // Remove all data rows
+                }
+
+                // Add new rows below the header
+                for (DataSnapshot logEntry : snapshot.getChildren()) {
+                    String name = logEntry.child("username").getValue(String.class);
+                    String uid = logEntry.child("rfid_uid").getValue(String.class);
+                    String timestamp = logEntry.child("timestamp").getValue(String.class);
+
+                    addRowToTable(timestamp, uid, name); // Add the data rows
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Failed to fetch logs.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
