@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#F5F5F5">
 
     <ScrollView
         android:layout_width="0dp"
@@ -20,75 +21,112 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal">
 
-            <!-- Input Field -->
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- Form Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Name or Label">
+                android:layout_marginBottom="16dp"
+                android:padding="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@android:color/white">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical">
 
-            <!-- Register Button -->
-            <Button
-                android:id="@+id/btnRegister"
+                    <!-- Input Field -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter Name or Label"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Register Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRegister"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Register NFC Tag"
+                        app:cornerRadius="8dp"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="@color/design_default_color_primary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Table Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Register NFC Tag"
-                android:layout_marginTop="12dp" />
+                android:padding="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@android:color/white">
 
-            <!-- Header TableLayout -->
-            <TableLayout
-                android:id="@+id/headerTable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="1"
-                android:layout_marginTop="24dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <!-- Header Row -->
-                <TableRow>
-                    <TextView
-                        android:layout_width="0dp"
+                    <!-- Header Table -->
+                    <TableLayout
+                        android:id="@+id/headerTable"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Timestamp"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:layout_weight="2" /> <!-- Adjusted weight -->
+                        android:stretchColumns="*">
 
-                    <TextView
-                        android:layout_width="0dp"
+                        <TableRow>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:padding="8dp"
+                                android:text="Name"
+                                android:textStyle="bold"
+                                android:textColor="#000000" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:padding="8dp"
+                                android:text="UID"
+                                android:textStyle="bold"
+                                android:textColor="#000000" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:padding="8dp"
+                                android:text="Date"
+                                android:textStyle="bold"
+                                android:textColor="#000000" />
+                        </TableRow>
+                    </TableLayout>
+
+                    <!-- Data Table -->
+                    <TableLayout
+                        android:id="@+id/trackerTable"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="UID"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:layout_weight="2" /> <!-- Adjusted weight -->
+                        android:layout_marginTop="8dp"
+                        android:stretchColumns="*">
+                        <!-- Dynamic rows inserted here -->
+                    </TableLayout>
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Name"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:layout_weight="3" /> <!-- Adjusted weight -->
-                </TableRow>
-            </TableLayout>
-
-            <!-- Data TableLayout (To add dynamic rows) -->
-            <TableLayout
-                android:id="@+id/trackerTable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="1"
-                android:layout_marginTop="12dp">
-                <!-- Data rows will be dynamically added here -->
-            </TableLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

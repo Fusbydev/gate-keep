@@ -3,9 +3,11 @@ package com.example.gatekeep;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -26,6 +28,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,9 +60,8 @@ public class MainActivity extends AppCompatActivity {
         // Initialize NFC
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
-//            Toast.makeText(this, "NFC not supported", Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, "NFC not supported (Running in non-NFC mode)", Toast.LENGTH_SHORT).show();
-//            finish();
+            Toast.makeText(this, "NFC not supported", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
@@ -99,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
-                String uid = bytesToHex(tag.getId());
+                String uid = bytesToHex(tag.getId()).toLowerCase().replace("0", "");
 
                 if (!pendingName.isEmpty()) {
                     // Push to Firebase
@@ -128,27 +133,43 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    private void addRowToTable(String name, String uid, String timestamp) {
+    private void addRowToTable(Long timestamp, String uid, String name) {
         TableRow row = new TableRow(this);
 
-        TextView nameText = new TextView(this);
-        nameText.setText(name);
-        nameText.setPadding(8, 8, 8, 8);
+        // Optional: Alternate row colors (striping)
+        int rowCount = trackerTable.getChildCount();
+        int bgColor = (rowCount % 2 == 0) ? Color.parseColor("#FAFAFA") : Color.parseColor("#FFFFFF");
+        row.setBackgroundColor(bgColor);
 
-        TextView uidText = new TextView(this);
-        uidText.setText(uid);
-        uidText.setPadding(8, 8, 8, 8);
+        // Format timestamp
+        Date date = new Date(timestamp);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDate = sdf.format(date);
 
-        TextView timeText = new TextView(this);
-        timeText.setText(timestamp);
-        timeText.setPadding(8, 8, 8, 8);
+        // Create TextViews with consistent styling
+        TextView nameText = createStyledCell(name);
+        TextView uidText = createStyledCell(uid);
+        TextView timeText = createStyledCell(formattedDate);
 
+        // Add views
         row.addView(nameText);
         row.addView(uidText);
         row.addView(timeText);
 
-        trackerTable.addView(row, 0);  // Newest on top
+        trackerTable.addView(row, 0);  // Add on top
     }
+
+    private TextView createStyledCell(String text) {
+        TextView textView = new TextView(this);
+        textView.setText(text);
+        textView.setPadding(16, 12, 16, 12);
+        textView.setBackgroundResource(R.drawable.cell_border);
+        textView.setTextColor(Color.BLACK);
+        textView.setTextSize(14);
+        textView.setGravity(Gravity.START);
+        return textView;
+    }
+
 
 
     private void fetchLogsFromFirebase() {
@@ -169,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot logEntry : snapshot.getChildren()) {
                     String name = logEntry.child("username").getValue(String.class);
                     String uid = logEntry.child("rfid_uid").getValue(String.class);
-                    String timestamp = logEntry.child("timestamp").getValue(String.class);
+                    Long timestampObj = logEntry.child("timestamp").getValue(Long.class);
+                    Long timestamp = (timestampObj != null) ? timestampObj : 0; // or handle differently
 
                     addRowToTable(timestamp, uid, name); // Add the data rows
                 }
